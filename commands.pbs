@@ -1,0 +1,43 @@
+#!/bin/bash
+# Job name
+#PBS -N commands
+# Output files
+#PBS -o ./matrix_operation_mpi.o
+#PBS -e ./matrix_operation_mpi.e
+# Queue name
+#PBS -q short_cpuQ
+# Set the maximum wall time
+#PBS -l walltime=1:10:00
+# Number of nodes, cpus, mpi processors and amount of memory
+#PBS -l select=1:ncpus=64:ompthreads=64:mpiprocs=64:mem=1mb
+
+# Modules for python and MPI and GCC 9.1 compiler
+module load gcc91
+module load mpich-3.2.1--gcc-9.1.0
+
+# Verify GCC version
+gcc() {
+    gcc-9.1.0 "$@"
+}
+
+gcc --version
+
+# Set your the working directory
+cd /home/ismaele.landini/EXERCIES/delivery2
+
+# Compile the code using MPI libraries without OMP libraries
+# mpicc matrix_operation_mpi.c -o matrix_operation_mpi.o
+
+# Compile the code using MPI libraries, adding OMP libraries
+mpicc -fopenmp matrix_operation_mpi.c -o matrix_operation_mpi.o
+
+# Define the output file for storing concatenated results
+OUTPUT_FILE="results.txt"
+
+# Clear the output file if it exists
+> $OUTPUT_FILE
+
+# Run the code
+mpirun -np 64 ./matrix_operation_mpi.o 4096 >> $OUTPUT_FILE  
+
+
